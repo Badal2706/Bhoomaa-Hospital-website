@@ -1,182 +1,223 @@
-# Deploying to a DigitalOcean Droplet
+# Deploying to a DigitalOcean Droplet (via GitHub)
 
-This is a static site — HTML, CSS, images, no server-side code and no database. It needs a web server and nothing else. Nginx is the right choice.
+Static site — HTML, CSS, images. No build step, no runtime, no database. Nginx serves it directly.
 
-Assumes: Ubuntu 22.04 or 24.04 droplet, domain `bhoomaahospital.com` at GoDaddy.
+**This droplet already runs other services.** Every step below is additive. Nothing here removes or edits an existing site's configuration. Read the warnings; a careless `rm` in `/etc/nginx/sites-enabled/` will take your SaaS products offline.
 
-Replace `bhoomaahospital.com` and `YOUR_DROPLET_IP` throughout.
+- Droplet IP: `167.71.236.138`
+- Repo: `https://github.com/Badal2706/Bhooma-Hospital-website.git`
+- Domain: `bhoomaahospital.com` (replace throughout if different)
 
 ---
 
-## Step 1 — Point the domain at the droplet
+## Step 1 — Push to GitHub (from Windows)
 
-Get your droplet's public IPv4 from the DigitalOcean dashboard.
+The repository is already initialised, committed and pointed at your remote. From the `Bhooma Website` folder in PowerShell:
 
-In **GoDaddy → My Products → Domain → DNS → Manage Zones**, set:
+```powershell
+git push -u origin main
+```
+
+Git will prompt for credentials. Use your GitHub **username** and a **personal access token** as the password (GitHub stopped accepting account passwords in 2021).
+
+To create a token: GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token → select only this repository → Repository permissions → **Contents: Read and write**. Nothing else.
+
+If Git doesn't prompt, run `git config --global credential.helper manager` first.
+
+Verify at `https://github.com/Badal2706/Bhooma-Hospital-website` — you should see `public/`, `docs/`, `README.md`. You should **not** see `source-photos/`.
+
+---
+
+## Step 2 — Survey the droplet before touching anything
+
+```bash
+ssh root@167.71.236.138
+```
+
+```bash
+# What is already configured and enabled?
+ls -la /etc/nginx/sites-enabled/
+
+# Which domains are already claimed?
+grep -r "server_name" /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null
+
+# What is listening on 80/443?
+ss -tlnp | grep -E ':80|:443'
+
+# Is it Nginx, or Apache/Caddy/a Docker reverse proxy?
+systemctl status nginx --no-pager | head -5
+docker ps 2>/dev/null | head
+```
+
+**Stop and reassess if:**
+- Nothing is listening on 80/443 via Nginx — you may be using Apache, Caddy or a Docker reverse proxy (Traefik, nginx-proxy). In that case the config below does not apply; the site must be added to whatever is already terminating traffic.
+- A server block already claims `bhoomaahospital.com`.
+
+Back up the config before proceeding:
+
+```bash
+cp -r /etc/nginx /root/nginx-backup-$(date +%F)
+```
+
+---
+
+## Step 3 — DNS
+
+In **GoDaddy → My Products → Domain → DNS → Manage Zones**:
 
 | Type | Name | Value | TTL |
 |------|------|-------|-----|
-| A | `@` | `YOUR_DROPLET_IP` | 600 |
-| A | `www` | `YOUR_DROPLET_IP` | 600 |
+| A | `@` | `167.71.236.138` | 600 |
+| A | `www` | `167.71.236.138` | 600 |
 
-Delete any existing parking/forwarding records for `@` and `www` first, or they will conflict.
+Delete existing parking/forwarding records for `@` and `www` first — they will conflict.
 
-DNS usually propagates in 10–30 minutes. Check with:
+Keep TTL at **600 seconds**. A low TTL makes the future droplet migration near-instant. Raise it to 3600 only after everything is stable.
+
+Wait for propagation, then confirm:
 
 ```bash
-nslookup bhoomaahospital.com
+dig +short bhoomaahospital.com
 ```
 
-Do not continue to the SSL step until this returns your droplet IP — certificate issuance will fail otherwise.
+Do not attempt SSL until this returns `167.71.236.138`. Certificate issuance will fail otherwise.
 
 ---
 
-## Step 2 — Connect and prepare the server
+## Step 4 — Clone the repository
 
 ```bash
-ssh root@YOUR_DROPLET_IP
+mkdir -p /var/www
+cd /var/www
+git clone https://github.com/Badal2706/Bhooma-Hospital-website.git bhoomaahospital
 ```
+
+If the repo is **private**, use a deploy key instead of pasting a token onto the server:
 
 ```bash
-apt update && apt upgrade -y
-apt install nginx -y
-
-ufw allow OpenSSH
-ufw allow 'Nginx Full'
-ufw --force enable
+ssh-keygen -t ed25519 -C "droplet-bhoomaa" -f ~/.ssh/bhoomaa_deploy -N ""
+cat ~/.ssh/bhoomaa_deploy.pub
 ```
 
-Visit `http://YOUR_DROPLET_IP` — you should see the Nginx welcome page.
-
----
-
-## Step 3 — Create the site directory
+Add that public key at GitHub → repo → Settings → Deploy keys → Add deploy key (leave "Allow write access" **unchecked**). Then:
 
 ```bash
-mkdir -p /var/www/bhoomaahospital.com/html
-chown -R $USER:$USER /var/www/bhoomaahospital.com/html
-chmod -R 755 /var/www/bhoomaahospital.com
+cat >> ~/.ssh/config <<'EOF'
+Host github-bhoomaa
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/bhoomaa_deploy
+EOF
+cd /var/www
+git clone git@github-bhoomaa:Badal2706/Bhooma-Hospital-website.git bhoomaahospital
 ```
 
----
-
-## Step 4 — Upload the files
-
-From **your Windows machine**, in PowerShell, from inside the `Bhooma Website` folder:
-
-```powershell
-scp index.html robots.txt sitemap.xml site.webmanifest root@YOUR_DROPLET_IP:/var/www/bhoomaahospital.com/html/
-scp -r assets root@YOUR_DROPLET_IP:/var/www/bhoomaahospital.com/html/
-```
-
-Upload **only** those four files plus `assets/`. Do not upload `_DELETE-THESE/`, `_original-photos-do-not-upload/`, or the `.md` files.
-
-Verify on the server:
+Set ownership for Nginx:
 
 ```bash
-ls -la /var/www/bhoomaahospital.com/html
-ls /var/www/bhoomaahospital.com/html/assets | wc -l    # expect 20
+chown -R www-data:www-data /var/www/bhoomaahospital
+chmod -R 755 /var/www/bhoomaahospital
 ```
 
 ---
 
-## Step 5 — Nginx configuration
+## Step 5 — Add an Nginx server block
+
+This creates a **new** file. It does not touch existing sites.
 
 ```bash
 nano /etc/nginx/sites-available/bhoomaahospital.com
 ```
-
-Paste:
 
 ```nginx
 server {
     listen 80;
     listen [::]:80;
 
-    root /var/www/bhoomaahospital.com/html;
-    index index.html;
-
     server_name bhoomaahospital.com www.bhoomaahospital.com;
+
+    # Note: the repo root is NOT the web root — public/ is.
+    root /var/www/bhoomaahospital/public;
+    index index.html;
 
     location / {
         try_files $uri $uri/ =404;
     }
 
-    # Compression — takes the 148 KB HTML down to roughly 28 KB
     gzip on;
     gzip_vary on;
     gzip_min_length 256;
     gzip_types text/plain text/css application/json application/javascript
                text/xml application/xml image/svg+xml application/manifest+json;
 
-    # Cache images and icons for a year (filenames change when content changes)
+    # Images cached for a year — change the filename when you change an image
     location ~* \.(jpg|jpeg|png|webp|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
         access_log off;
     }
 
-    # Never cache the HTML, so edits go live immediately
+    # HTML never cached, so edits appear immediately
     location = /index.html {
         expires -1;
         add_header Cache-Control "no-cache, must-revalidate";
     }
 
-    # Security headers
+    # Block access to anything git-related, just in case
+    location ~ /\.git { deny all; return 404; }
+
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    access_log /var/log/nginx/bhoomaahospital.access.log;
+    error_log  /var/log/nginx/bhoomaahospital.error.log;
 }
 ```
 
-Enable it and remove the default site:
+Enable it — **do not delete anything else in `sites-enabled/`**:
 
 ```bash
 ln -s /etc/nginx/sites-available/bhoomaahospital.com /etc/nginx/sites-enabled/
-rm /etc/nginx/sites-enabled/default
 nginx -t
+```
+
+`nginx -t` must report "syntax is ok" and "test is successful". If it errors, fix it before reloading — reloading a broken config will not drop your existing sites, but do not risk it.
+
+```bash
 systemctl reload nginx
 ```
 
-`nginx -t` must say "syntax is ok" and "test is successful" before you reload.
+`reload` is graceful and will not interrupt your other services. Never use `restart` on a shared droplet unless you have to.
 
-Visit `http://bhoomaahospital.com` — the site should load.
+Check `http://bhoomaahospital.com`, then confirm your other sites still respond.
 
 ---
 
-## Step 6 — HTTPS with Let's Encrypt (free)
+## Step 6 — HTTPS
 
 ```bash
 apt install certbot python3-certbot-nginx -y
 certbot --nginx -d bhoomaahospital.com -d www.bhoomaahospital.com
 ```
 
-Answer the prompts:
-- Email address — use a real one; expiry warnings go there
-- Agree to terms: `Y`
-- **Redirect HTTP to HTTPS: choose option `2` (Redirect)**
+Certbot only modifies the server block matching the domains you pass with `-d`. Your other sites are untouched.
 
-Certbot rewrites your Nginx config automatically and installs a renewal timer. Certificates last 90 days and renew on their own.
-
-Confirm renewal works:
+Choose **`2` (Redirect)** when asked about HTTP → HTTPS.
 
 ```bash
 certbot renew --dry-run
 ```
 
+If your other sites already use Certbot, this simply adds another certificate to the existing renewal timer.
+
 ---
 
-## Step 7 — Pick one hostname
+## Step 7 — One canonical hostname
 
-The site's canonical tag is `https://bhoomaahospital.com/` (no `www`). Make the server agree, or search engines will see two copies of the site.
+The site's canonical tag is `https://bhoomaahospital.com/` (no `www`). The server must agree, or Google sees two copies of the site.
 
-Certbot will have created a `server` block listening on 443. Edit it:
-
-```bash
-nano /etc/nginx/sites-available/bhoomaahospital.com
-```
-
-Change the HTTPS block's `server_name` to only `bhoomaahospital.com`, then add this block at the end of the file:
+Edit `/etc/nginx/sites-available/bhoomaahospital.com`. In the HTTPS block Certbot created, change `server_name` to only `bhoomaahospital.com`. Then append:
 
 ```nginx
 server {
@@ -197,54 +238,107 @@ server {
 nginx -t && systemctl reload nginx
 ```
 
-Test all four forms — every one should land on `https://bhoomaahospital.com`:
-
-```
-http://bhoomaahospital.com
-http://www.bhoomaahospital.com
-https://www.bhoomaahospital.com
-https://bhoomaahospital.com
-```
-
----
-
-## Step 8 — Verify before telling Google
+All four forms must land on `https://bhoomaahospital.com`:
 
 ```bash
-curl -I https://bhoomaahospital.com                      # expect 200
-curl -I https://bhoomaahospital.com/robots.txt           # expect 200
-curl -I https://bhoomaahospital.com/sitemap.xml          # expect 200
-curl -sI https://bhoomaahospital.com | grep -i content-encoding   # expect gzip
+for u in http://bhoomaahospital.com http://www.bhoomaahospital.com https://www.bhoomaahospital.com; do
+  echo "$u -> $(curl -sIL -o /dev/null -w '%{url_effective}' $u)"
+done
 ```
-
-Then in a browser:
-- Images load, gallery and reviews behave normally
-- Language switcher works
-- Phone link dials, WhatsApp form opens with details pre-filled
-- View source: canonical reads `https://bhoomaahospital.com/`, and there is **no** `noindex`
-
-Then work through `LAUNCH-CHECKLIST.md` from step 8 onward (Rich Results Test, PageSpeed, Search Console, sitemap submission, Google Business Profile).
 
 ---
 
-## Updating the site later
+## Step 8 — Verify
 
-Re-upload the changed file and reload:
+```bash
+curl -I https://bhoomaahospital.com                    # 200
+curl -I https://bhoomaahospital.com/robots.txt         # 200
+curl -I https://bhoomaahospital.com/sitemap.xml        # 200
+curl -sI https://bhoomaahospital.com | grep -i content-encoding   # gzip
+curl -I https://bhoomaahospital.com/../README.md       # must NOT be 200
+```
+
+In a browser: images load, gallery and review strip behave, language switcher works, phone dials, WhatsApp form pre-fills. View source — canonical is correct and there is no `noindex`.
+
+Then continue with `LAUNCH-CHECKLIST.md` from step 8.
+
+---
+
+## Updating the site
+
+Locally: edit `public/index.html`, then
 
 ```powershell
-scp index.html root@YOUR_DROPLET_IP:/var/www/bhoomaahospital.com/html/
+git add -A
+git commit -m "describe the change"
+git push
 ```
 
-HTML is set to never cache, so changes appear immediately. If you change an **image**, either give it a new filename or clear the browser cache — images are cached for a year.
+On the droplet:
+
+```bash
+cd /var/www/bhoomaahospital && git pull
+```
+
+That is the whole deploy. No Nginx reload needed — Nginx reads files from disk on each request.
+
+### Optional: one-command deploy
+
+```bash
+cat > /usr/local/bin/deploy-bhoomaa <<'EOF'
+#!/bin/bash
+set -e
+cd /var/www/bhoomaahospital
+git pull
+chown -R www-data:www-data /var/www/bhoomaahospital
+echo "Deployed: $(git log -1 --pretty=%s)"
+EOF
+chmod +x /usr/local/bin/deploy-bhoomaa
+```
+
+Then just `deploy-bhoomaa`.
+
+### Optional: automatic deploy on push
+
+GitHub Actions can SSH in and pull on every push to `main`. Worth setting up once the site is stable and being edited often; unnecessary while changes are occasional.
 
 ---
 
-## Notes
+# Moving to a different droplet later
 
-**Droplet size.** The smallest droplet is far more than this site needs. A static site of this weight will serve thousands of visitors a day on 1 GB RAM without effort.
+**Short answer: no SEO impact, provided the domain and URLs stay the same.**
 
-**Backups.** DigitalOcean's weekly backups cost roughly 20% of the droplet price. Worth it, but your real backup is the `Bhooma Website` folder on your machine — the site can be redeployed from it in ten minutes.
+Google indexes and ranks the **domain**, not the server IP. It has no concept of "which droplet". Your rankings, backlinks, Search Console history and Google Business Profile all attach to `bhoomaahospital.com`. Changing the A record is invisible to Google as long as the site keeps responding.
 
-**Alternative worth considering.** DigitalOcean App Platform hosts static sites on a free tier, with HTTPS, a global CDN and Git-based deploys — no server to patch or secure. If this droplet exists only for this site, App Platform is less work and likely faster for visitors. The droplet makes sense if you are already running other things on it.
+You do **not** need Search Console's Change of Address tool — that is only for moving to a different *domain*.
 
-**Security.** Run `apt update && apt upgrade -y` monthly. There is no database, no login and no server-side code here, so the attack surface is small — but an unpatched server is still a target.
+The genuine risks are operational, not algorithmic:
+
+| Risk | Prevention |
+|------|-----------|
+| Downtime during the switch | Build the new server fully and test it **before** touching DNS |
+| SSL certificate missing on the new server | Run Certbot on the new droplet **after** DNS points there; expect a few minutes of browser warnings otherwise |
+| Slow DNS propagation | Keep TTL at 600s. Lower to 300s a day before migrating |
+| Redirects lost | Re-apply the `www` → bare-domain redirect on the new server |
+| Old server still answering | Keep it running 48h, then shut down |
+
+### Migration procedure
+
+1. **A day before:** lower both A records' TTL to 300 in GoDaddy.
+2. **On the new droplet:** repeat steps 2, 4, 5 of this guide. Do not run Certbot yet.
+3. **Test before switching.** On your Windows machine, edit `C:\Windows\System32\drivers\etc\hosts` (as Administrator) and add:
+   ```
+   NEW_DROPLET_IP    bhoomaahospital.com
+   ```
+   Browse the site — you are now hitting the new server while the rest of the world still hits the old one. Confirm everything works, then remove the line.
+4. **Switch DNS:** update both A records to the new IP.
+5. **Wait** for `dig +short bhoomaahospital.com` to return the new IP (usually minutes at TTL 300).
+6. **Issue SSL on the new droplet:** `certbot --nginx -d bhoomaahospital.com -d www.bhoomaahospital.com`
+7. **Re-apply** the `www` redirect (step 7).
+8. **Verify** with the step 8 checks.
+9. **Leave the old droplet running for 48 hours** — some DNS resolvers ignore TTL. Then decommission.
+10. **Afterwards:** in Search Console, run a URL Inspection → Test Live URL to confirm Googlebot reaches the new server. Raise TTL back to 3600.
+
+Because the site is in Git, step 2 is a `git clone` — the new server is identical to the old one by construction. That is the main practical reason to deploy this way rather than uploading files by hand.
+
+**One caveat:** if you keep the site on the shared droplet long-term, remember that a problem with your SaaS products — a crash, a runaway process, an Nginx misconfiguration — takes the hospital site down with it. For a business where people search "emergency hospital Palanpur", that matters more than it would for most sites. Moving it to its own droplet, or to DigitalOcean App Platform's free static tier, removes that coupling.
