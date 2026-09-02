@@ -5,7 +5,7 @@ Static site — HTML, CSS, images. No build step, no runtime, no database. Nginx
 **This droplet already runs other services.** Every step below is additive. Nothing here removes or edits an existing site's configuration. Read the warnings; a careless `rm` in `/etc/nginx/sites-enabled/` will take your SaaS products offline.
 
 - Droplet IP: `167.71.236.138`
-- Repo: `https://github.com/Badal2706/Bhooma-Hospital-website.git`
+- Repo: `https://github.com/Badal2706/Bhoomaa-Hospital-website.git`
 - Domain: `bhoomaahospital.com` (replace throughout if different)
 
 ---
@@ -24,7 +24,7 @@ To create a token: GitHub → Settings → Developer settings → Personal acces
 
 If Git doesn't prompt, run `git config --global credential.helper manager` first.
 
-Verify at `https://github.com/Badal2706/Bhooma-Hospital-website` — you should see `public/`, `docs/`, `README.md`. You should **not** see `source-photos/`.
+Verify at `https://github.com/Badal2706/Bhoomaa-Hospital-website` — you should see `public/`, `docs/`, `README.md`. You should **not** see `source-photos/`.
 
 ---
 
@@ -89,7 +89,7 @@ Do not attempt SSL until this returns `167.71.236.138`. Certificate issuance wil
 ```bash
 mkdir -p /var/www
 cd /var/www
-git clone https://github.com/Badal2706/Bhooma-Hospital-website.git bhoomaahospital
+git clone https://github.com/Badal2706/Bhoomaa-Hospital-website.git bhoomaahospital
 ```
 
 If the repo is **private**, use a deploy key instead of pasting a token onto the server:
@@ -109,7 +109,7 @@ Host github-bhoomaa
   IdentityFile ~/.ssh/bhoomaa_deploy
 EOF
 cd /var/www
-git clone git@github-bhoomaa:Badal2706/Bhooma-Hospital-website.git bhoomaahospital
+git clone git@github-bhoomaa:Badal2706/Bhoomaa-Hospital-website.git bhoomaahospital
 ```
 
 Set ownership for Nginx:
