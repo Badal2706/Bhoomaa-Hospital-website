@@ -1,0 +1,11 @@
+# Full-resolution originals — kept locally (OneDrive) for future re-crops.
+# Excluded so the server never pulls 25 MB of unused files.
+source-photos/
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.DS_Store
+*.swp
+.vscode/
+.idea/
