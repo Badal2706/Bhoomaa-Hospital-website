@@ -304,6 +304,33 @@ GitHub Actions can SSH in and pull on every push to `main`. Worth setting up onc
 
 ---
 
+---
+
+## As deployed (2026-09-02)
+
+The site is live at <https://bhoomaahospital.com>. The exact Nginx server block
+in production is committed at [`nginx/bhoomaahospital.com.conf`](nginx/bhoomaahospital.com.conf)
+— copy it verbatim onto a new droplet rather than rebuilding it from step 5.
+
+Notes specific to droplet `167.71.236.138`:
+
+- The droplet is IPv4-only, so there are **no `listen [::]:…` directives**. Adding
+  them will fail to bind.
+- Nothing listened on port 80 before this site existed, so the config includes a
+  `listen 80 default_server` catch-all returning `444`. Without it the hospital
+  site would answer plain-HTTP requests to the bare IP.
+- Certbot's `--redirect` sends `http://www` through `https://www` before reaching
+  the canonical host. The committed config hardcodes the bare domain instead, so
+  every entry point is one hop.
+- `git config --global --add safe.directory /var/www/bhoomaahospital` is required,
+  because the working tree is owned by `www-data` but `git pull` runs as root.
+- Existing services left untouched: `cylinderpro.guruindustries.co.in` (static
+  root `/var/www/cylinderpro` + Node/PM2 backend proxied from `localhost:3001`).
+
+Config backups on the droplet: `/root/nginx-backup-2026-09-02-1738` (whole
+`/etc/nginx` before any change) and `/root/bhoomaahospital.com.certbot-original`
+(Certbot's unmodified output, before the canonical redirect was applied).
+
 # Moving to a different droplet later
 
 **Short answer: no SEO impact, provided the domain and URLs stay the same.**
