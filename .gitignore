@@ -9,3 +9,6 @@ desktop.ini
 *.swp
 .vscode/
 .idea/
+
+# Images sized for third-party directory listings - not served by the site.
+listing-assets/
