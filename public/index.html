@@ -815,6 +815,17 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
 .footer-services b{color:#9fb0cc;font-weight:700;text-transform:uppercase;letter-spacing:.09em;font-size:10px;}
 .footer-services a{color:#c3cfe3;}
 .footer-services a:hover{color:var(--gold);}
+/* Services dropdown. CSS-only: :hover for mouse, :focus-within for keyboard.
+   The desktop nav is hidden at touch widths, where .mnav-sub is used instead,
+   so there is no tap-to-open case to handle. */
+.nav-drop{position:relative;display:inline-flex;align-items:center;gap:5px;}
+.nav-drop__caret{width:0;height:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;border-top:4px solid currentColor;opacity:.55;}
+.nav-drop__menu{position:absolute;top:calc(100% + 10px);left:-16px;min-width:242px;background:#fffdf8;border:1px solid var(--line);box-shadow:0 12px 30px -16px rgba(8,31,66,.45);padding:7px 0;opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity 150ms ease,transform 150ms ease,visibility 150ms;z-index:70;}
+.nav-drop:hover .nav-drop__menu,.nav-drop:focus-within .nav-drop__menu{opacity:1;visibility:visible;transform:none;}
+.nav-drop__menu a{display:block;padding:9px 18px;font-size:12.5px;font-weight:700;white-space:nowrap;color:var(--muted);}
+.nav-drop__menu a:hover{background:var(--paper);color:var(--navy);}
+.mnav-sub{padding-left:16px !important;font-size:13px !important;opacity:.82;}
+@media (prefers-reduced-motion:reduce){.nav-drop__menu{transition:none;}}
 
 /* floating */
 .floating-whatsapp{display:none;}
@@ -882,7 +893,17 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
     <nav class="main-nav">
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="#doctor" data-i18n="nav.doctor">Doctor</a>
-      <a href="#services" data-i18n="nav.services">Services</a>
+      <div class="nav-drop">
+        <a href="#services" data-i18n="nav.services">Services</a>
+        <span class="nav-drop__caret" aria-hidden="true"></span>
+        <div class="nav-drop__menu">
+          <a href="/icu-critical-care-palanpur/">ICU &amp; Critical Care</a>
+          <a href="/emergency-hospital-palanpur/">24x7 Emergency Care</a>
+          <a href="/cardiac-care-heart-attack-palanpur/">Heart Attack &amp; Cardiac Care</a>
+          <a href="/respiratory-care-asthma-pneumonia-palanpur/">Respiratory Care</a>
+          <a href="/snake-bite-poisoning-treatment-palanpur/">Snake Bite &amp; Poisoning</a>
+        </div>
+      </div>
       <a href="#facilities" data-i18n="nav.facilities">Facilities</a>
       <a href="#gallery" data-i18n="nav.gallery">Gallery</a>
       <a href="#faq" data-i18n="nav.faq">FAQ</a>
@@ -900,6 +921,11 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
     <a href="#about" data-i18n="nav.about">About</a>
     <a href="#doctor" data-i18n="nav.doctor">Doctor</a>
     <a href="#services" data-i18n="nav.services">Services</a>
+    <a class="mnav-sub" href="/icu-critical-care-palanpur/">ICU &amp; Critical Care</a>
+    <a class="mnav-sub" href="/emergency-hospital-palanpur/">24x7 Emergency Care</a>
+    <a class="mnav-sub" href="/cardiac-care-heart-attack-palanpur/">Heart Attack &amp; Cardiac Care</a>
+    <a class="mnav-sub" href="/respiratory-care-asthma-pneumonia-palanpur/">Respiratory Care</a>
+    <a class="mnav-sub" href="/snake-bite-poisoning-treatment-palanpur/">Snake Bite &amp; Poisoning</a>
     <a href="#facilities" data-i18n="nav.facilities">Facilities</a>
     <a href="#gallery" data-i18n="nav.gallery">Gallery</a>
     <a href="#appointment" data-i18n="header.book">Book Appointment</a>
