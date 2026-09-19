@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://bhoomaahospital.com/</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-19</lastmod>
     <image:image>
       <image:loc>https://bhoomaahospital.com/assets/bhoomaa-medicare-hospital-palanpur-exterior.jpg</image:loc>
     </image:image>
@@ -28,14 +28,22 @@
   </url>
   <url>
     <loc>https://bhoomaahospital.com/icu-critical-care-palanpur/</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-19</lastmod>
   </url>
   <url>
     <loc>https://bhoomaahospital.com/emergency-hospital-palanpur/</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-19</lastmod>
   </url>
   <url>
     <loc>https://bhoomaahospital.com/snake-bite-poisoning-treatment-palanpur/</loc>
-    <lastmod>2026-09-09</lastmod>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://bhoomaahospital.com/cardiac-care-heart-attack-palanpur/</loc>
+    <lastmod>2026-09-19</lastmod>
+  </url>
+  <url>
+    <loc>https://bhoomaahospital.com/respiratory-care-asthma-pneumonia-palanpur/</loc>
+    <lastmod>2026-09-19</lastmod>
   </url>
 </urlset>

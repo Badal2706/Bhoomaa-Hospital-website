@@ -130,7 +130,7 @@ ul.ticks li strong{color:var(--ink);}
 /* footer ----------------------------------------------------------------- */
 .site-footer{background:var(--deep-navy); color:#c3cfe3; padding:34px 0 42px;
   font-size:13px;}
-.site-footer img{height:36px; filter:brightness(0) invert(1);}
+.site-footer img{height:36px; width:auto; filter:brightness(0) invert(1);}
 .footer-top{display:flex; align-items:center; justify-content:space-between;
   gap:24px; flex-wrap:wrap;}
 .footer-services{margin-top:26px; padding-top:18px;
