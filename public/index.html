@@ -44,11 +44,13 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
 
-<!-- Fonts: preconnect + non-blocking stylesheet -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="image" href="assets/bhoomaa-medicare-hospital-palanpur-exterior.webp" type="image/webp" fetchpriority="high">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
+<!-- Fonts: self-hosted, no third-party request -->
+<link rel="preload" as="image" type="image/webp" fetchpriority="high"
+      imagesrcset="assets/bhoomaa-medicare-hospital-palanpur-exterior-w760.webp 760w, assets/bhoomaa-medicare-hospital-palanpur-exterior-w1290.webp 1290w"
+      imagesizes="(max-width: 900px) 100vw, 645px">
+<link rel="preload" as="font" type="font/woff2" href="/fonts/Manrope-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/fonts/DMSerifDisplay-latin.woff2" crossorigin>
+<link rel="stylesheet" href="/css/fonts.css">
 
 <script type="application/ld+json">
 {
@@ -960,7 +962,7 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
       </div>
       <div class="hero__visual reveal">
         <div class="hero__image-frame">
-          <picture><source srcset="assets/bhoomaa-medicare-hospital-palanpur-exterior.webp" type="image/webp"><source srcset="assets/bhoomaa-medicare-hospital-palanpur-exterior.jpg" type="image/jpeg"><img src="assets/bhoomaa-medicare-hospital-palanpur-exterior.jpg" width="1448" height="1086" fetchpriority="high" decoding="async" alt="BHOOMAA Medicare Hospital &amp; I.C.U. building at Bhoomaa Sankul, Palanpur, Gujarat"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-medicare-hospital-palanpur-exterior-w760.webp 760w, assets/bhoomaa-medicare-hospital-palanpur-exterior-w1290.webp 1290w" sizes="(max-width: 900px) 100vw, 645px"><source srcset="assets/bhoomaa-medicare-hospital-palanpur-exterior.jpg" type="image/jpeg"><img src="assets/bhoomaa-medicare-hospital-palanpur-exterior.jpg" width="1448" height="1086" fetchpriority="high" decoding="async" alt="BHOOMAA Medicare Hospital &amp; I.C.U. building at Bhoomaa Sankul, Palanpur, Gujarat"></picture>
           <div class="hero__image-wash"></div>
         </div>
         <div class="hero__caption">
@@ -1005,7 +1007,7 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
     <div class="container doctor-grid">
       <div class="doctor-aside reveal">
         <p class="section-kicker"><span data-i18n="doctor.kicker">Our Doctor</span></p>
-        <div class="doctor-photo"><picture><source srcset="assets/bhoomaa-hospital-palanpur-doctor.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-doctor.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-doctor.jpg" width="600" height="800" loading="lazy" decoding="async" alt="Dr. Ambarish A. Panchasara, MBBS MD, Consulting Physician at BHOOMAA Medicare Hospital, Palanpur"></picture></div>
+        <div class="doctor-photo"><picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-doctor-w480.webp"><source srcset="assets/bhoomaa-hospital-palanpur-doctor.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-doctor.jpg" width="600" height="800" loading="lazy" decoding="async" alt="Dr. Ambarish A. Panchasara, MBBS MD, Consulting Physician at BHOOMAA Medicare Hospital, Palanpur"></picture></div>
         <span class="doctor-reg" data-i18n="doctor.reg">Gujarat Medical Council<br>Registration G-48998</span>
       </div>
       <div class="doctor-content reveal">
@@ -1133,23 +1135,23 @@ h1{max-width:540px;color:var(--deep-navy);font-size:clamp(40px,5.6vw,68px);line-
       </div>
       <div class="mosaic">
         <figure class="tile g1 reveal">
-          <picture><source srcset="assets/bhoomaa-hospital-palanpur-building-aerial.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-building-aerial.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-building-aerial.jpg" width="883" height="1050" loading="lazy" decoding="async" alt="BHOOMAA Sankul, the hospital building in Ambika Society, Palanpur"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-building-aerial-w760.webp 760w, assets/bhoomaa-hospital-palanpur-building-aerial-w883.webp 883w" sizes="(max-width: 900px) 100vw, 600px"><source srcset="assets/bhoomaa-hospital-palanpur-building-aerial.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-building-aerial.jpg" width="883" height="1050" loading="lazy" decoding="async" alt="BHOOMAA Sankul, the hospital building in Ambika Society, Palanpur"></picture>
           <figcaption data-i18n="gallery.c1">BHOOMAA Sankul, Palanpur</figcaption>
         </figure>
         <figure class="tile g2 reveal">
-          <picture><source srcset="assets/bhoomaa-hospital-palanpur-reception.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-reception.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-reception.jpg" width="1200" height="900" loading="lazy" decoding="async" alt="Reception and registration desk at BHOOMAA Medicare Hospital"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-reception-w760.webp 760w, assets/bhoomaa-hospital-palanpur-reception-w1200.webp 1200w" sizes="(max-width: 900px) 100vw, 600px"><source srcset="assets/bhoomaa-hospital-palanpur-reception.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-reception.jpg" width="1200" height="900" loading="lazy" decoding="async" alt="Reception and registration desk at BHOOMAA Medicare Hospital"></picture>
           <figcaption data-i18n="gallery.c2">Reception &amp; registration</figcaption>
         </figure>
         <figure class="tile g3 reveal">
-          <picture><source srcset="assets/bhoomaa-hospital-palanpur-waiting-area.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-waiting-area.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-waiting-area.jpg" width="1200" height="900" loading="lazy" decoding="async" alt="Patient waiting area outside the consulting rooms"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-waiting-area-w760.webp 760w, assets/bhoomaa-hospital-palanpur-waiting-area-w1200.webp 1200w" sizes="(max-width: 900px) 100vw, 600px"><source srcset="assets/bhoomaa-hospital-palanpur-waiting-area.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-waiting-area.jpg" width="1200" height="900" loading="lazy" decoding="async" alt="Patient waiting area outside the consulting rooms"></picture>
           <figcaption data-i18n="gallery.c3">Patient waiting area</figcaption>
         </figure>
         <figure class="tile g4 reveal">
-          <picture><source srcset="assets/bhoomaa-hospital-palanpur-xray-room.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-xray-room.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-xray-room.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Digital X-Ray room at BHOOMAA Medicare Hospital"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-xray-room-w760.webp 760w, assets/bhoomaa-hospital-palanpur-xray-room-w1200.webp 1200w" sizes="(max-width: 900px) 100vw, 600px"><source srcset="assets/bhoomaa-hospital-palanpur-xray-room.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-xray-room.jpg" width="1200" height="800" loading="lazy" decoding="async" alt="Digital X-Ray room at BHOOMAA Medicare Hospital"></picture>
           <figcaption data-i18n="gallery.c4">Digital X-Ray room</figcaption>
         </figure>
         <figure class="tile g5 reveal">
-          <picture><source srcset="assets/bhoomaa-hospital-palanpur-consultation-room.webp" type="image/webp"><source srcset="assets/bhoomaa-hospital-palanpur-consultation-room.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-consultation-room.jpg" width="788" height="1050" loading="lazy" decoding="async" alt="Consulting room with echocardiography equipment"></picture>
+          <picture><source type="image/webp" srcset="assets/bhoomaa-hospital-palanpur-consultation-room-w788.webp"><source srcset="assets/bhoomaa-hospital-palanpur-consultation-room.jpg" type="image/jpeg"><img src="assets/bhoomaa-hospital-palanpur-consultation-room.jpg" width="788" height="1050" loading="lazy" decoding="async" alt="Consulting room with echocardiography equipment"></picture>
           <figcaption data-i18n="gallery.c5">Consulting room</figcaption>
         </figure>
       </div>
