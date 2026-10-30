@@ -157,6 +157,9 @@ ul.ticks li strong{color:var(--ink);}
 .footer-services a{color:#c3cfe3; text-decoration:none;}
 .footer-services a:hover{color:var(--gold);}
 .footer-note{margin-top:20px; font-size:11px; color:#8fa2c0;}
+.footer-credit{margin-top:8px; font-size:11px; color:#8fa2c0;}
+.footer-credit a{color:var(--gold); text-decoration:none;}
+.footer-credit a:hover{text-decoration:underline;}
 
 /* sticky mobile action bar ------------------------------------------------ */
 .mobile-bar{display:none;}
