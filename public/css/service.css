@@ -157,9 +157,11 @@ ul.ticks li strong{color:var(--ink);}
 .footer-services a{color:#c3cfe3; text-decoration:none;}
 .footer-services a:hover{color:var(--gold);}
 .footer-note{margin-top:20px; font-size:11px; color:#8fa2c0;}
-.footer-credit{margin-top:8px; font-size:11px; color:#8fa2c0;}
-.footer-credit a{color:var(--gold); text-decoration:none;}
-.footer-credit a:hover{text-decoration:underline;}
+.footer-credit{margin-top:20px; font-size:13px; font-weight:600; color:#e4eaf5;}
+.footer-credit a{color:var(--gold); font-size:16px; font-weight:800;
+  letter-spacing:.02em; text-decoration:none; border-bottom:2px solid var(--gold);
+  padding-bottom:1px; transition:color 160ms ease,border-color 160ms ease;}
+.footer-credit a:hover{color:#fff; border-color:#fff;}
 
 /* sticky mobile action bar ------------------------------------------------ */
 .mobile-bar{display:none;}
