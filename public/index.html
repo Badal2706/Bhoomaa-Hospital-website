@@ -564,7 +564,10 @@ h1 em,h2 em{color:var(--navy);font-style:italic;}
 .action--outline{border-color:var(--navy);color:var(--navy);}
 .action--outline:hover{background:var(--navy);color:#fff;}
 .action--light{background:#f8f4eb;color:var(--deep-navy);}
-.menu-toggle{display:none;border:0;background:transparent;color:var(--deep-navy);padding:8px;}
+.menu-toggle{display:none;border:0;background:transparent;color:var(--deep-navy);width:48px;height:48px;padding:0;margin-right:-10px;}
+.menu-toggle svg{width:28px;height:28px;display:block;margin:auto;}
+.menu-toggle .icon-close,.menu-toggle[aria-expanded="true"] .icon-menu{display:none;}
+.menu-toggle[aria-expanded="true"] .icon-close{display:block;}
 .icon{width:1em;height:1em;display:inline-block;vertical-align:-0.15em;}
 
 /* mobile nav */
@@ -663,7 +666,7 @@ a.service-card:hover h3{color:var(--red);}
 
 /* facilities */
 .facilities-section{background:#fffdf8;}
-.facility-grid{display:grid;grid-template-columns:1.15fr .9fr .8fr;gap:1px;background:var(--line);}
+.facility-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);}
 .facility-card{min-height:0;padding:32px;background:var(--paper);position:relative;}
 .facility-card--2{background:#eef1ea;}
 .facility-card--3{background:var(--deep-navy);color:#fff;}
@@ -928,8 +931,9 @@ html.lb-open{overflow:hidden;}
     <a class="wordmark" href="#home">
       <picture><source srcset="assets/bhoomaa-medicare-hospital-logo.webp" type="image/webp"><source srcset="assets/bhoomaa-medicare-hospital-logo.png" type="image/png"><img src="assets/bhoomaa-medicare-hospital-logo.png" width="700" height="197" alt="BHOOMAA Medicare Hospital &amp; I.C.U. logo"></picture>
     </a>
-    <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">
-      <svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileNav">
+      <svg class="icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg class="icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <nav class="main-nav">
       <a href="#about" data-i18n="nav.about">About</a>
@@ -1797,8 +1801,14 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
   const menuToggle = document.getElementById('menuToggle');
   const mobileNav = document.getElementById('mobileNav');
-  menuToggle.addEventListener('click', ()=> mobileNav.classList.toggle('open'));
-  mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>mobileNav.classList.remove('open')));
+  // The button shows a cross while the menu is open; aria-expanded drives the icon.
+  const setMenu = open=>{
+    mobileNav.classList.toggle('open', open);
+    menuToggle.setAttribute('aria-expanded', open);
+    menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  menuToggle.addEventListener('click', ()=> setMenu(!mobileNav.classList.contains('open')));
+  mobileNav.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>setMenu(false)));
 
   document.getElementById('apptForm').addEventListener('submit', function(e){
     e.preventDefault();
